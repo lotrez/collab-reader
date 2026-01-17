@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev:back": "bun run --hot back/index.ts",
+    "dev:front": "vite",
+    "dev": "bun run dev:back & bun run dev:front",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
@@ -16,17 +18,29 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "drizzle-kit": "^0.31.8"
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "autoprefixer": "^10.4.23",
+    "drizzle-kit": "^0.31.8",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "tailwindcss-animate": "^1.0.7",
+    "vite": "^7.3.1"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.4",
+    "@tanstack/react-router": "^1.151.1",
     "better-auth": "^1.4.14",
     "drizzle-orm": "^0.45.1",
     "fast-xml-parser": "^5.3.3",
     "fflate": "^0.8.2",
     "hono": "^4.11.4",
-    "postgres": "^3.4.8"
+    "postgres": "^3.4.8",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   }
 }

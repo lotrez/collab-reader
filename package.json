@@ -1,0 +1,29 @@
+{
+  "name": "collab-reader",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev:back": "bun run --hot back/index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:migrate": "drizzle-kit migrate",
+    "test:s3": "bun run scripts/test-s3-upload.ts",
+    "test:epub": "bun run scripts/test-epub-unzip.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.31.8"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.1",
+    "fast-xml-parser": "^5.3.3",
+    "fflate": "^0.8.2",
+    "hono": "^4.11.4",
+    "postgres": "^3.4.8"
+  }
+}

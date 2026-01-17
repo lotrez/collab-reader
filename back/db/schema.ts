@@ -29,7 +29,7 @@ export const books = pgTable('books', {
   author: text('author'),
   publisher: text('publisher'),
   language: text('language'),
-  isbn: text('isbn'),
+  isbn: text('isbn').unique(),
   description: text('description'),
   coverImagePath: text('cover_image_path'), // S3 key for cover image
   
@@ -77,7 +77,6 @@ export const assets = pgTable('assets', {
   // File information
   originalPath: text('original_path').notNull(), // Path in original EPUB
   s3Key: text('s3_key').notNull().unique(), // S3 object key
-  s3Url: text('s3_url').notNull(), // Full S3 URL
   mimeType: text('mime_type').notNull(),
   fileSize: integer('file_size'), // Size in bytes
   

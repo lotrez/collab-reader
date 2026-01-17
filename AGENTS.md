@@ -2,96 +2,39 @@
 
 ## Project Overview
 
-**Collab Reader** is a web-based EPUB reader with collaborative features, built with:
+**Collab Reader** - Web-based EPUB reader with collaborative features
 - **Backend:** Bun + Hono + PostgreSQL + Drizzle ORM
 - **Storage:** MinIO (S3-compatible)
-- **Frontend:** React
-- **Auth:** Google OAuth (planned - not yet implemented)
+- **Frontend:** React (not yet implemented)
+- **Auth:** Better Auth (planned)
 
-## Quick Reference
-
-### Essential Documents
-- **[Architecture Plan](./docs/ARCHITECTURE.md)** - Complete technical architecture, database schema, API specs, and implementation phases
-
-### Key Commands
+## Essential Commands
 
 ```bash
-# Start infrastructure (PostgreSQL + MinIO)
-docker-compose up -d
+# Development
+bun run dev:back              # Start backend dev server
+bun build ./back/index.ts --outfile ./dist/index.js  # Build for production
 
-# Install dependencies
-bun install
+# Database
+bun run db:generate           # Generate migrations
+bun run db:push               # Apply schema changes
+bun run db:studio             # Open Drizzle Studio
 
-# Run database migrations
-bun drizzle-kit push
+# Testing
+bun test back/tests           # Run all tests
+bun test back/tests/epub-parser.test.ts  # Run single test file
 
-# Development server
-bun run dev
-
-# Build for production
-bun build ./src/index.ts --outfile ./dist/index.js
-
-# Run tests
-bun test
+# Infrastructure
+docker-compose up -d          # Start PostgreSQL + MinIO
 ```
-
----
-
-## Architecture Quick Reference
-
-### Core Decisions
-
-| Aspect | Decision | Why |
-|--------|----------|-----|
-| **EPUB Processing** | Unzip on upload | One-time cost, enables search/indexing, better for multiple reads |
-| **HTML Storage** | PostgreSQL (per chapter) | Fast queries, full-text search, transactional consistency |
-| **Asset Storage** | MinIO/S3 | Scalable, cost-effective for binary files |
-| **Asset Serving** | API proxy (not direct S3) | Security, access control, user-specific permissions |
-| **Path Resolution** | Keep relative paths in HTML | Simpler processing, resolve via proxy at runtime |
-
-### Database Schema Summary
-
-**Core Tables:**
-- `users` - User accounts and authentication (TODO: Add after implementing Google OAuth)
-- `books` - EPUB metadata (title, author, cover, etc.)
-- `chapters` - Individual chapter HTML content with full-text search
-- `assets` - Image/font/CSS file mappings to S3
-- `reading_progress` - Track where users left off
-- `annotations` - Highlights, notes, and bookmarks
-
-**Note:** User authentication tables are pending implementation. Google OAuth will be integrated before user-related foreign keys are added to other tables.
-
-**See [ARCHITECTURE.md](./docs/ARCHITECTURE.md#database-schema) for complete schema with TypeScript definitions.**
-
-### API Endpoints Summary
-
-```
-Auth:       POST   /api/auth/register, /login, /logout
-Books:      GET    /api/books (list)
-            GET    /api/books/:id (details)
-            POST   /api/books/upload (EPUB)
-            DELETE /api/books/:id
-Chapters:   GET    /api/books/:bookId/chapters/:number
-Assets:     GET    /api/books/:bookId/assets/*path (proxy)
-Progress:   GET    /api/books/:bookId/progress
-            POST   /api/books/:bookId/progress
-Annotations:GET    /api/chapters/:chapterId/annotations
-            POST   /api/chapters/:chapterId/annotations
-            PATCH  /api/annotations/:id
-            DELETE /api/annotations/:id
-Search:     GET    /api/search?q={query}&bookId={optional}
-```
-
----
 
 ## Coding Standards
 
 ### TypeScript
-
-- **Strict mode enabled** - All TypeScript strict checks on
-- **No any types** - Use proper typing or unknown
-- **Use Zod for validation** - Validate all API inputs
-- **Explicit return types** - Always declare function return types
+- **Strict mode enabled** - Check `tsconfig.json`
+- **No `any` types** - Use proper typing
+- **Explicit return types** - Declare function returns
+- **Use type imports** - `import type { ... }` for types only
 
 ```typescript
 // Good
@@ -105,627 +48,265 @@ export async function getBook(id) {
 }
 ```
 
-### File Organization
+### Imports & Formatting
+- **ES modules only** - Use `import`/`export`, no CommonJS
+- **Named exports preferred** - Default exports only for main entry points
+- **Group imports:** external libs → internal modules → type imports
+- **No trailing commas in single-line imports**
 
+```typescript
+import { Hono } from 'hono'
+import { db, books } from '../db'
+import type { Book, Chapter } from '../db/schema'
 ```
-src/
-├── routes/          # Hono route handlers (one file per resource)
-├── services/        # Business logic (epub, storage, auth, search)
-├── middleware/      # Request/response middleware (auth, error, cors)
-├── db/              # Drizzle schema and migrations
-├── config/          # Configuration (database, s3, env)
-├── types/           # Shared TypeScript types
-└── utils/           # Helper functions (logger, validators)
+
+### File Organization
+```
+back/
+├── index.ts          # Main app entry
+├── routes/           # Hono route handlers
+├── services/         # Business logic
+├── db/               # Drizzle schema & migrations
+├── epub/             # EPUB parsing utilities
+├── s3/               # S3/MinIO client
+└── tests/            # Test files (bun:test)
 ```
 
 **Rules:**
-1. **Routes** are thin - they validate input and call services
-2. **Services** contain business logic - reusable across routes
-3. **One file per concern** - don't create god files
-4. **Index exports** - use barrel exports (index.ts) for cleaner imports
+1. **Routes are thin** - Validate input, call services, return responses
+2. **Services contain logic** - Reusable business operations
+3. **Use barrel exports** - `index.ts` for cleaner imports
 
 ### Naming Conventions
-
-- **Files:** kebab-case (`epub-parser.ts`, `auth.routes.ts`)
-- **Classes:** PascalCase (`EpubParser`, `HtmlSanitizer`)
-- **Functions:** camelCase (`parseEpub`, `sanitizeHtml`)
-- **Constants:** SCREAMING_SNAKE_CASE (`MAX_UPLOAD_SIZE`, `JWT_SECRET`)
-- **Interfaces/Types:** PascalCase (`Book`, `Chapter`, `EpubMetadata`)
+- **Files:** kebab-case (`epub-parser.ts`, `book.service.ts`)
+- **Functions:** camelCase (`parseEpub`, `getBook`)
+- **Classes/Types:** PascalCase (`Book`, `Chapter`, `EpubParser`)
+- **Constants:** SCREAMING_SNAKE_CASE (`MAX_UPLOAD_SIZE`)
 
 ### Error Handling
-
 ```typescript
-// Good - Specific error types
-export class EpubParseError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'EpubParseError';
-  }
-}
-
 // Good - Structured error responses
-return c.json({ 
-  error: 'Book not found',
-  code: 'BOOK_NOT_FOUND',
-  details: { bookId } 
-}, 404);
+return c.json({ error: 'Book not found', code: 'BOOK_NOT_FOUND' }, 404)
 
-// Bad - Generic errors
-throw new Error('something went wrong');
+// Good - Throwing for programmatic errors
+throw new Error('Failed to parse EPUB')
+
+// Bad - Generic unhelpful errors
+throw new Error('something went wrong')
 ```
 
 ### Database Queries
-
 ```typescript
 // Good - Use Drizzle query builder
 const book = await db.query.books.findFirst({
   where: eq(books.id, bookId),
   with: { chapters: true },
-});
+})
 
 // Good - Use transactions for multi-step operations
 await db.transaction(async (tx) => {
-  await tx.insert(books).values(bookData);
-  await tx.insert(chapters).values(chapterData);
-});
+  await tx.insert(books).values(bookData)
+  await tx.insert(chapters).values(chapterData)
+})
 
-// Bad - Raw SQL strings (unless absolutely necessary)
-const result = await db.execute(sql`SELECT * FROM books WHERE id = ${bookId}`);
+// Bad - Raw SQL (unless absolutely necessary)
 ```
 
----
+## Frontend Development
+
+### Tech Stack
+- **Framework:** React 19 with Vite
+- **Routing:** TanStack Router
+- **Styling:** Tailwind CSS + shadcn/ui + Neobrutalism components
+- **Theme:** Black and white (configured)
+
+### Frontend Commands
+```bash
+# Development
+bun run dev:front             # Start Vite dev server (port 5173)
+bun run dev                   # Start both backend (3000) and frontend (5173)
+
+# Build
+bun run build                 # Build frontend for production
+```
+
+### File Organization
+```
+front/
+├── components/
+│   └── ui/                   # shadcn/ui + neobrutalism components
+├── lib/
+│   └── utils.ts              # Utility functions (cn helper)
+├── index.css                 # Global styles + Tailwind directives
+├── App.tsx                   # Root component with RouterProvider
+├── router.tsx                # TanStack Router configuration
+└── main.tsx                  # Entry point
+```
+
+### Neobrutalism Components
+
+The project uses **neobrutalism.dev** components based on shadcn/ui with a black and white theme.
+
+#### Installing Components
+
+Use the shadcn CLI to install neobrutalism components:
+
+```bash
+# Install a button component with neobrutalism style
+bunx shadcn@latest add https://neobrutalism.dev/r/button.json
+
+# Install a card component
+bunx shadcn@latest add https://neobrutalism.dev/r/card.json
+```
+
+Visit [neobrutalism.dev](https://www.neobrutalism.dev) to find available components and their installation URLs.
+
+#### Using Components
+
+```typescript
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+
+function MyComponent() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Neobrutalism Card</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p>Content here</p>
+        <Button>Click me</Button>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+#### Theme Configuration
+
+The black and white theme is pre-configured in `front/index.css`:
+
+```css
+@layer base {
+  :root {
+    --background: 0 0% 100%;      /* White background */
+    --foreground: 0 0% 0%;        /* Black text */
+    /* ... other variables are black/white */
+  }
+
+  .dark {
+    --background: 0 0% 0%;       /* Black background */
+    --foreground: 0 0% 100%;      /* White text */
+    /* ... inverted for dark mode */
+  }
+}
+```
+
+#### Available Styles
+
+Neobrutalism components support:
+- Default: Black border, white background
+- Dark mode: White border, black background
+- Shadows: Offset shadow effect
+- Hover states with shadow reduction
+
+### TanStack Router
+
+Use file-based routing defined in `front/router.tsx`:
+
+```typescript
+import { createRouter, createRootRoute, createRoute } from '@tanstack/react-router'
+
+const rootRoute = createRootRoute({
+  component: () => <div>Root layout</div>,
+})
+
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: Index,
+})
+
+function Index() {
+  return <div>Home page</div>
+}
+
+const routeTree = rootRoute.addChildren([indexRoute])
+export const router = createRouter({ routeTree })
+```
+
+Add new routes by creating route definitions and adding them to `routeTree`.
+
+### Styling Guidelines
+
+- **Use Tailwind utility classes** for layout and spacing
+- **Use neobrutalism components** for UI elements (buttons, cards, inputs)
+- **Custom styles** go in `front/index.css` using Tailwind's `@layer` directives
+- **Dark mode** support built-in with `.dark` class
+
+```typescript
+// Good - Using neobrutalism components
+import { Button } from '@/components/ui/button'
+<Button className="w-full">Submit</Button>
+
+// Good - Using Tailwind utilities
+<div className="flex gap-4 p-6 rounded-lg">Content</div>
+```
+
+## Testing
+
+Use **bun:test** for all tests:
+
+```typescript
+import { describe, test, expect } from 'bun:test'
+
+describe('EpubParser', () => {
+  test('should parse valid EPUB', async () => {
+    const result = await parseEpub(buffer)
+    expect(result.metadata.title).toBe('Sample Book')
+  })
+})
+```
+
+- **Unit tests:** Test services/utils in isolation
+- **Integration tests:** Test API endpoints with real database
+- **Test files:** Place in `back/tests/` with `.test.ts` extension
+- **Run single test:** `bun test back/tests/epub-parser.test.ts`
 
 ## Development Workflow
 
-### Starting a New Feature
-
-1. **Read the Architecture Doc** - Understand how your feature fits
-2. **Check existing code** - Look for similar patterns to follow
-3. **Update database schema** if needed:
-   ```bash
-   # Edit src/db/schema.ts
-   # Generate migration
-   bun drizzle-kit generate
-   # Apply migration
-   bun drizzle-kit push
-   ```
-4. **Write service layer** - Business logic first
-5. **Create routes** - Wire up HTTP endpoints
-6. **Add validation** - Use Zod schemas for input validation
-7. **Test manually** - Use Thunder Client, Postman, or curl
-8. **Write tests** - Unit tests for services, integration tests for routes
-
-### Testing Philosophy
-
-- **Unit tests:** Test business logic in isolation (services, utils)
-- **Integration tests:** Test API endpoints with real database
-- **Avoid mocking:** Use test database instead of mocks when possible
-- **Test happy path + edge cases:** Success and failure scenarios
-
-```typescript
-// Example unit test
-import { describe, test, expect } from 'bun:test';
-import { EpubParser } from './epub-parser';
-
-describe('EpubParser', () => {
-  test('should parse valid EPUB metadata', async () => {
-    const parser = new EpubParser();
-    const buffer = await Bun.file('test/fixtures/sample.epub').arrayBuffer();
-    const result = await parser.parse(buffer);
-    
-    expect(result.metadata.title).toBe('Sample Book');
-    expect(result.spine.length).toBeGreaterThan(0);
-  });
-  
-  test('should throw error for invalid EPUB', async () => {
-    const parser = new EpubParser();
-    const buffer = new ArrayBuffer(0);
-    
-    await expect(parser.parse(buffer)).rejects.toThrow('Invalid EPUB');
-  });
-});
-```
-
-### Git Workflow
-
-```bash
-# Create feature branch
-git checkout -b feature/add-book-collections
-
-# Make changes, commit frequently
-git add .
-git commit -m "feat: add book collections schema"
-
-# Push and create PR
-git push origin feature/add-book-collections
-```
-
-**Commit Messages:**
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation changes
-- `refactor:` - Code refactoring
-- `test:` - Adding tests
-- `chore:` - Maintenance tasks
-
----
-
-## Common Tasks & Patterns
-
-### Adding a New API Endpoint
-
-**Example: Add endpoint to get book statistics**
-
-1. **Create route handler:**
-
-```typescript
-// src/routes/books.routes.ts
-
-booksRouter.get('/:id/stats', authMiddleware, async (c) => {
-  const bookId = c.req.param('id');
-  const userId = c.get('userId');
-  
-  // Validate access
-  const book = await db.query.books.findFirst({
-    where: and(eq(books.id, bookId), eq(books.userId, userId)),
-  });
-  
-  if (!book) {
-    return c.json({ error: 'Book not found' }, 404);
-  }
-  
-  // Call service
-  const stats = await bookService.getBookStats(bookId);
-  
-  return c.json(stats);
-});
-```
-
-2. **Create service method:**
-
-```typescript
-// src/services/book.service.ts
-
-export class BookService {
-  async getBookStats(bookId: string) {
-    const chapters = await db.query.chapters.findMany({
-      where: eq(chapters.bookId, bookId),
-    });
-    
-    const totalWords = chapters.reduce((sum, ch) => sum + (ch.wordCount || 0), 0);
-    
-    return {
-      chapterCount: chapters.length,
-      totalWords,
-      estimatedReadingTime: Math.ceil(totalWords / 250), // minutes
-    };
-  }
-}
-
-export const bookService = new BookService();
-```
-
-### Adding a New Database Table
-
-1. **Update schema:**
-
-```typescript
-// src/db/schema.ts
-
-export const bookCollections = pgTable('book_collections', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  description: text('description'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-export const bookCollectionItems = pgTable('book_collection_items', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  collectionId: uuid('collection_id').notNull().references(() => bookCollections.id, { onDelete: 'cascade' }),
-  bookId: uuid('book_id').notNull().references(() => books.id, { onDelete: 'cascade' }),
-  addedAt: timestamp('added_at').defaultNow().notNull(),
-});
-```
-
-2. **Generate and apply migration:**
-
-```bash
-bun drizzle-kit generate
-bun drizzle-kit push
-```
-
-### Processing an EPUB File
-
-```typescript
-// High-level flow
-const parser = new EpubParser();
-const sanitizer = new HtmlSanitizer();
-
-// 1. Parse EPUB
-const parsed = await parser.parse(epubBuffer);
-
-// 2. Create book record
-const bookId = generateId();
-await db.insert(books).values({
-  id: bookId,
-  userId,
-  ...parsed.metadata,
-});
-
-// 3. Process chapters
-for (const [index, spineItem] of parsed.spine.entries()) {
-  const manifestItem = parsed.manifest.find(m => m.id === spineItem.idref);
-  const htmlBuffer = await parser.extractFile(parsed.zip, manifestItem.href);
-  const htmlContent = sanitizer.sanitize(htmlBuffer.toString());
-  
-  await db.insert(chapters).values({
-    bookId,
-    chapterNumber: index + 1,
-    spineIndex: index,
-    htmlContent,
-    href: manifestItem.href,
-    wordCount: sanitizer.countWords(htmlContent),
-  });
-}
-
-// 4. Upload assets
-for (const asset of parsed.manifest.filter(isAsset)) {
-  const buffer = await parser.extractFile(parsed.zip, asset.href);
-  const s3Key = `assets/${bookId}/${asset.href}`;
-  const s3Url = await s3Service.uploadFile(s3Key, buffer, asset.mediaType);
-  
-  await db.insert(assets).values({
-    bookId,
-    originalPath: asset.href,
-    s3Key,
-    s3Url,
-    mimeType: asset.mediaType,
-    fileSize: buffer.length,
-  });
-}
-```
-
-### Implementing Full-Text Search
-
-```typescript
-// Search query
-const results = await db
-  .select({
-    bookId: books.id,
-    chapterId: chapters.id,
-    snippet: sql<string>`ts_headline('english', ${chapters.htmlContent}, to_tsquery('english', ${query}))`,
-    rank: sql<number>`ts_rank(${chapters.searchVector}, to_tsquery('english', ${query}))`,
-  })
-  .from(chapters)
-  .innerJoin(books, eq(chapters.bookId, books.id))
-  .where(
-    and(
-      eq(books.userId, userId),
-      sql`${chapters.searchVector} @@ to_tsquery('english', ${query})`
-    )
-  )
-  .orderBy(sql`rank DESC`)
-  .limit(50);
-```
-
----
-
-## Key Technical Decisions & Rationale
-
-### Why Unzip on Upload?
-
-**Decision:** Process EPUB completely on upload and store extracted content.
-
-**Alternatives considered:**
-- On-the-fly unzipping (decompress when user requests chapter)
-- Hybrid (extract metadata on upload, chapters on-demand)
-
-**Why this choice:**
-- Users read books multiple times → one-time processing cost
-- Enables full-text search across all content
-- Allows pre-processing (sanitization, word count, etc.)
-- Better performance for small user base (1-10 users)
-- Simpler client implementation
-
-**Trade-off:** Higher storage usage (acceptable at small scale)
-
-### Why Store HTML in Database?
-
-**Decision:** Store chapter HTML in PostgreSQL text columns.
-
-**Alternatives considered:**
-- Store all content (HTML + assets) in S3
-- Store HTML as files on disk
-
-**Why this choice:**
-- PostgreSQL excels at full-text search (tsvector)
-- Transactional consistency with metadata
-- Fast queries for chapter retrieval
-- Easy to version/modify content
-- Chapter HTML is typically small (10-500KB)
-
-**Trade-off:** Database size grows with books (mitigated by chapter-level storage)
-
-### Why Proxy Assets Instead of Direct S3?
-
-**Decision:** Serve assets through API proxy, not direct S3 URLs.
-
-**Alternatives considered:**
-- Public S3 bucket with direct links
-- Pre-signed S3 URLs
-
-**Why this choice:**
-- **Security:** Verify user has access to book before serving
-- **Flexibility:** Can add watermarking, analytics, rate limiting
-- **Control:** Can revoke access without changing S3
-- **Privacy:** Users can't share asset URLs directly
-
-**Trade-off:** Slight performance overhead (mitigated with caching headers)
-
-### Why Drizzle ORM?
-
-**Decision:** Use Drizzle ORM for database access.
-
-**Alternatives considered:**
-- Prisma (full-featured ORM)
-- Kysely (query builder)
-- Raw SQL with postgres driver
-
-**Why this choice:**
-- TypeScript-first with excellent type inference
-- Lightweight (no runtime overhead)
-- Excellent Bun support
-- Simple migration system
-- No code generation step required
-- Good balance of type safety and flexibility
-
-### Why Hono?
-
-**Decision:** Use Hono for HTTP framework.
-
-**Alternatives considered:**
-- Elysia (Bun-native, very fast)
-- Express (familiar)
-- Fastify (mature, fast)
-
-**Why this choice:**
-- Extremely lightweight and fast
-- Works with multiple runtimes (portable)
-- Clean, intuitive API
-- Built-in TypeScript support
-- Middleware ecosystem growing
-- Good documentation
-
----
-
-## Environment Setup for New Developers
-
-### Prerequisites
-- Bun installed (https://bun.sh)
-- Docker & Docker Compose
-- Git
-
-### First-Time Setup
-
-```bash
-# 1. Clone repository
-git clone <repo-url>
-cd collab-reader
-
-# 2. Install dependencies
-bun install
-
-# 3. Copy environment template
-cp .env.example .env
-# Edit .env with your settings
-
-# 4. Start infrastructure
-docker-compose up -d
-
-# 5. Wait for services to be ready (30 seconds)
-sleep 30
-
-# 6. Run database migrations
-bun drizzle-kit push
-
-# 7. Create MinIO bucket
-# Open http://localhost:9001
-# Login: minioadmin / minioadmin
-# Create bucket: collab-reader
-# Set policy: private
-
-# 8. Start development server
-bun run dev
-
-# 9. Test API
-curl http://localhost:3000/health
-```
-
-### Useful Development URLs
-
-- **API Server:** http://localhost:3000
-- **MinIO Console:** http://localhost:9001 (admin/admin)
-- **PostgreSQL:** localhost:5432 (postgres/postgres)
-- **Drizzle Studio:** `bun drizzle-kit studio` → http://localhost:4983
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue: Database connection fails**
-```bash
-# Check if PostgreSQL is running
-docker ps | grep postgres
-
-# Check connection string
-echo $DATABASE_URL
-
-# Test connection
-bun drizzle-kit push
-```
-
-**Issue: MinIO upload fails**
-```bash
-# Check if MinIO is running
-docker ps | grep minio
-
-# Verify bucket exists
-# Open http://localhost:9001 and check buckets
-
-# Test S3 connection
-bun run test:s3  # (create this test script)
-```
-
-**Issue: EPUB parsing fails**
-```bash
-# Check file is valid EPUB
-unzip -t path/to/file.epub
-
-# Check mimetype file exists
-unzip -l path/to/file.epub | grep mimetype
-
-# Enable debug logging
-DEBUG=epub:* bun run dev
-```
-
-**Issue: Full-text search returns no results**
-```sql
--- Check if search_vector is populated
-SELECT id, title, search_vector FROM chapters LIMIT 5;
-
--- Manually trigger update
-UPDATE chapters SET html_content = html_content;
-
--- Test search directly
-SELECT * FROM chapters 
-WHERE search_vector @@ to_tsquery('english', 'search & term');
-```
-
----
-
-## Performance Considerations
-
-### Database Optimization
-
-- **Indexes created:** See [ARCHITECTURE.md - migrations/002_create_indexes.sql](./docs/ARCHITECTURE.md#sql-migrations)
-- **Connection pooling:** Drizzle handles this automatically
-- **Query optimization:** Use `EXPLAIN ANALYZE` for slow queries
-
-### Asset Serving
-
-- **Cache headers:** Set `Cache-Control: public, max-age=31536000, immutable`
-- **CDN (future):** Add CloudFlare or similar in front of API
-- **Compression:** Enable gzip/brotli at reverse proxy level
-
-### Upload Processing
-
-- **Stream processing:** Use streams to avoid loading entire EPUB in memory
-- **Background jobs (future):** Move processing to queue (BullMQ, etc.)
-- **Rate limiting:** Limit uploads to prevent abuse
-
----
-
-## Security Checklist
-
-Before deploying to production:
-
-- [ ] Change JWT_SECRET to cryptographically random string (32+ chars)
-- [ ] Update all default passwords (PostgreSQL, MinIO)
-- [ ] Enable HTTPS (use Let's Encrypt)
-- [ ] Set secure CORS policy (whitelist frontend domain)
-- [ ] Add rate limiting to all endpoints
-- [ ] Validate all file uploads (size, type, content)
-- [ ] Sanitize all HTML before storage
-- [ ] Use prepared statements (Drizzle does this automatically)
-- [ ] Enable PostgreSQL SSL connections
-- [ ] Review S3 bucket permissions
-- [ ] Add CSP headers to frontend
-- [ ] Enable database backups
-- [ ] Set up error monitoring (Sentry, etc.)
-- [ ] Review all authentication flows
-- [ ] Add logging for security events
-
----
-
-## Resources & References
-
-### Documentation
-- **[Complete Architecture Guide](./docs/ARCHITECTURE.md)** - Full technical specification
-- **Drizzle ORM:** https://orm.drizzle.team
-- **Hono Framework:** https://hono.dev
-- **Bun Runtime:** https://bun.sh/docs
-- **EPUB 3.0 Spec:** http://idpf.org/epub/30
-
-### Tools
-- **Drizzle Studio:** Visual database browser (`bun drizzle-kit studio`)
-- **MinIO Console:** S3 bucket management (http://localhost:9001)
-- **PostgreSQL CLI:** `docker exec -it collab-reader-db psql -U postgres -d collab_reader`
-
-### Sample EPUB Files (for testing)
-- https://www.gutenberg.org/ (free public domain books)
-- https://standardebooks.org/ (high-quality EPUB files)
-
----
-
-## Contributing
-
-When working on this project:
-
-1. **Read this guide first** - Understand architecture and patterns
-2. **Follow coding standards** - Consistency is key
-3. **Write tests** - Cover new functionality
-4. **Update documentation** - Keep AGENTS.md and ARCHITECTURE.md current
-5. **Ask questions** - Use GitHub issues or discussions
-
-### For AI Agents
-
-When assisting with this project:
-
-- **Always reference** `/docs/ARCHITECTURE.md` for technical details
-- **Follow established patterns** - Don't introduce new architectural approaches without discussion
-- **Maintain consistency** - Match existing code style and structure
-- **Consider security** - Validate inputs, sanitize outputs, check permissions
-- **Test your changes** - Verify functionality before marking complete
-- **Update documentation** - Reflect changes in relevant docs
-
----
+1. **Check existing code** - Look for similar patterns
+2. **Update schema** if needed → Edit `back/db/schema.ts` → `bun run db:push`
+3. **Write service layer** - Business logic first
+4. **Create routes** - Wire up HTTP endpoints in `back/routes/`
+5. **Write tests** - Unit tests for services, integration for routes
+6. **Test manually** - Use curl, Postman, or Thunder Client
+
+## Technical Decisions
+
+| Aspect | Decision |
+|--------|----------|
+| EPUB Processing | Unzip on upload (one-time cost, enables search) |
+| HTML Storage | PostgreSQL text columns (fast queries, full-text search) |
+| Asset Storage | MinIO/S3 (scalable, cost-effective) |
+| Asset Serving | API proxy (security, access control) |
+| ORM | Drizzle (lightweight, excellent TypeScript) |
+| Framework | Hono (fast, portable, clean API) |
+
+## Architecture Reference
+
+**See `/docs/ARCHITECTURE.md` for:**
+- Complete database schema
+- API endpoint specifications
+- Implementation phases
+- EPUB processing workflow
 
 ## Quick Start for AI Agents
 
-**Scenario: User asks you to implement a feature**
-
-1. **Read context:**
-   - Review [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for relevant sections
-   - Check existing code for similar patterns
-   - Identify which phase this feature belongs to
-
-2. **Plan implementation:**
-   - Database changes? Update schema and create migration
-   - New service? Create in appropriate services/ directory
-   - New endpoint? Add to relevant routes/ file
-   - Frontend changes? Note dependencies with React app
-
-3. **Implement:**
-   - Follow established patterns and conventions
-   - Add proper TypeScript types
-   - Include error handling
-   - Add input validation with Zod
-
-4. **Test:**
-   - Write unit tests for services
-   - Manually test endpoints
-   - Verify database changes
-   - Check integration with existing features
-
-5. **Document:**
-   - Update this file if adding new patterns
-   - Add code comments for complex logic
-   - Update ARCHITECTURE.md if changing core design
-
----
-
-**Last Updated:** January 2026  
-**Maintained by:** Collab Reader Development Team
+When implementing a feature:
+1. Read `/docs/ARCHITECTURE.md` for context
+2. Check existing code for patterns to follow
+3. Follow strict TypeScript typing (no `any`)
+4. Write tests using `bun:test`
+5. Keep routes thin, put logic in services
+6. Update this file if adding new patterns

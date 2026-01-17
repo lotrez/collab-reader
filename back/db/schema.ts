@@ -208,7 +208,26 @@ export const accountRelations = relations(account, ({ one }) => ({
     fields: [account.userId],
     references: [user.id],
   }),
-}));
+}))
+
+export const booksRelations = relations(books, ({ many }) => ({
+  chapters: many(chapters),
+  assets: many(assets),
+}))
+
+export const chaptersRelations = relations(chapters, ({ one }) => ({
+  book: one(books, {
+    fields: [chapters.bookId],
+    references: [books.id],
+  }),
+}))
+
+export const assetsRelations = relations(assets, ({ one }) => ({
+  book: one(books, {
+    fields: [assets.bookId],
+    references: [books.id],
+  }),
+}))
 
 
 // Type exports for use in application code

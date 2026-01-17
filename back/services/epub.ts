@@ -1,5 +1,5 @@
 import { Hono } from "hono"
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { assets, books, chapters, db } from "../db"
 import { parseEpub } from "../epub/parser"
 import { minio } from "../s3/s3"
@@ -11,13 +11,23 @@ app.get('/:id', async (c) => {
   
   const book = await db.query.books.findFirst({
     where: eq(books.id, bookId),
+    with: {
+      chapters: {
+        orderBy: chapters.spineIndex,
+      },
+    },
   })
   
   if (!book) {
     return c.json({ error: 'Book not found' }, 404)
   }
   
-  return c.json(book)
+  const chaptersList = book.chapters.map((ch: any) => ({
+    spineIndex: ch.spineIndex,
+    title: ch.title,
+  }))
+  
+  return c.json({ ...book, chapters: chaptersList })
 })
 
 app.get('/:bookId/chapters/:index', async (c) => {
@@ -29,7 +39,10 @@ app.get('/:bookId/chapters/:index', async (c) => {
   }
   
   const chapter = await db.query.chapters.findFirst({
-    where: eq(chapters.spineIndex, chapterIndex),
+    where: and(
+      eq(chapters.bookId, bookId),
+      eq(chapters.spineIndex, chapterIndex),
+    ),
   })
   
   if (!chapter) {

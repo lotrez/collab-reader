@@ -10,7 +10,9 @@
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",
     "test:s3": "bun run scripts/test-s3-upload.ts",
-    "test:epub": "bun run scripts/test-epub-unzip.ts"
+    "test:epub": "bun run scripts/test-epub-unzip.ts",
+    "test:parser": "bun run scripts/test-epub-parser.ts",
+    "test": "bun test back/tests"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -20,6 +22,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "better-auth": "^1.4.14",
     "drizzle-orm": "^0.45.1",
     "fast-xml-parser": "^5.3.3",
     "fflate": "^0.8.2",

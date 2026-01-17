@@ -1,0 +1,393 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="UND">
+  <head>
+    <meta content="44332d59-bf9a-4970-8f10-2269ccfde8bd" name="dtb:uid"/>
+    <meta content="2" name="dtb:depth"/>
+    <meta content="calibre (0.6.13)" name="dtb:generator"/>
+    <meta content="0" name="dtb:totalPageCount"/>
+    <meta content="0" name="dtb:maxPageNumber"/>
+  </head>
+  <docTitle>
+    <text>A l abordage</text>
+  </docTitle>
+  <navMap>
+    <navPoint class="chapter" id="65f57aaf-a31d-43db-baab-492eeed1be22" playOrder="1">
+      <navLabel>
+        <text>Page 1</text>
+      </navLabel>
+      <content src="page_1.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="6ab03754-d45f-40e6-b367-315190cfe091" playOrder="2">
+      <navLabel>
+        <text>Page 2</text>
+      </navLabel>
+      <content src="page_2.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="2736df4d-986f-4fc2-8d73-b9e0d4aba16a" playOrder="3">
+      <navLabel>
+        <text>Page 3</text>
+      </navLabel>
+      <content src="page_3.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="d25672fd-53e7-4a9b-a518-c87b672f8208" playOrder="4">
+      <navLabel>
+        <text>Page 4</text>
+      </navLabel>
+      <content src="page_4.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="abc40ab3-b6d5-483f-bb74-67bfc26358b0" playOrder="5">
+      <navLabel>
+        <text>Page 5</text>
+      </navLabel>
+      <content src="page_5.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="f20ff652-489c-4295-beab-22d49916018d" playOrder="6">
+      <navLabel>
+        <text>Page 6</text>
+      </navLabel>
+      <content src="page_6.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="b008322d-949c-4353-ac3a-06d284418eea" playOrder="7">
+      <navLabel>
+        <text>Page 7</text>
+      </navLabel>
+      <content src="page_7.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="e5dd394b-8e79-4eb7-b6fe-d1cb728d15e0" playOrder="8">
+      <navLabel>
+        <text>Page 8</text>
+      </navLabel>
+      <content src="page_8.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="130e5dc3-4985-45f2-8e7b-8aa0af0fa9ec" playOrder="9">
+      <navLabel>
+        <text>Page 9</text>
+      </navLabel>
+      <content src="page_9.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="b4b23145-ff24-4049-bf8c-7b8cc14fa4f5" playOrder="10">
+      <navLabel>
+        <text>Page 10</text>
+      </navLabel>
+      <content src="page_10.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="c448add1-5436-4bb5-88b8-ad63ec435cff" playOrder="11">
+      <navLabel>
+        <text>Page 11</text>
+      </navLabel>
+      <content src="page_11.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="08a4129e-47fc-4cf3-93ff-87069d8d74e6" playOrder="12">
+      <navLabel>
+        <text>Page 12</text>
+      </navLabel>
+      <content src="page_12.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="70d2cb44-72b3-4c5d-97e2-410f1ffee049" playOrder="13">
+      <navLabel>
+        <text>Page 13</text>
+      </navLabel>
+      <content src="page_13.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="b9ac27e5-7ef3-4917-95e0-2b0476740847" playOrder="14">
+      <navLabel>
+        <text>Page 14</text>
+      </navLabel>
+      <content src="page_14.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="fc2fc063-b074-4fcf-aad8-6632bba39541" playOrder="15">
+      <navLabel>
+        <text>Page 15</text>
+      </navLabel>
+      <content src="page_15.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="88e96462-21c7-4838-b18b-220d6807ac04" playOrder="16">
+      <navLabel>
+        <text>Page 16</text>
+      </navLabel>
+      <content src="page_16.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="f7b2cd49-0f56-4268-a31d-a8bc0627f5e7" playOrder="17">
+      <navLabel>
+        <text>Page 17</text>
+      </navLabel>
+      <content src="page_17.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="7abe9395-1fb9-49c1-a3d5-674e11e0ecde" playOrder="18">
+      <navLabel>
+        <text>Page 18</text>
+      </navLabel>
+      <content src="page_18.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="7b07560c-a32d-4552-a292-69ebc32be06e" playOrder="19">
+      <navLabel>
+        <text>Page 19</text>
+      </navLabel>
+      <content src="page_19.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="a3e6b006-4051-472d-98f1-f76bb5c82266" playOrder="20">
+      <navLabel>
+        <text>Page 20</text>
+      </navLabel>
+      <content src="page_20.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="463cae26-5e8f-4c21-99dd-ce524447cac5" playOrder="21">
+      <navLabel>
+        <text>Page 21</text>
+      </navLabel>
+      <content src="page_21.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="e64848e8-a1c8-46ba-9e25-2ded516514ba" playOrder="22">
+      <navLabel>
+        <text>Page 22</text>
+      </navLabel>
+      <content src="page_22.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="3abf8c13-8bb5-488b-a84b-3b3b4e1bfeca" playOrder="23">
+      <navLabel>
+        <text>Page 23</text>
+      </navLabel>
+      <content src="page_23.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="cb4dbc97-93c5-45b5-b164-33c255231af0" playOrder="24">
+      <navLabel>
+        <text>Page 24</text>
+      </navLabel>
+      <content src="page_24.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="097889e3-cf35-4e09-b2ef-fa6033742d00" playOrder="25">
+      <navLabel>
+        <text>Page 25</text>
+      </navLabel>
+      <content src="page_25.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="7c9666fd-a8e8-42ae-bc9a-e90a7906101c" playOrder="26">
+      <navLabel>
+        <text>Page 26</text>
+      </navLabel>
+      <content src="page_26.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="39c41d70-8c90-4b22-b748-9937c2fdb5e2" playOrder="27">
+      <navLabel>
+        <text>Page 27</text>
+      </navLabel>
+      <content src="page_27.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="b3ce43b6-4c92-49d3-88c2-1167420012aa" playOrder="28">
+      <navLabel>
+        <text>Page 28</text>
+      </navLabel>
+      <content src="page_28.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="046e2dc5-2255-44c4-8997-2a3bf89f0429" playOrder="29">
+      <navLabel>
+        <text>Page 29</text>
+      </navLabel>
+      <content src="page_29.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="6333f735-30ae-4ac9-a8d6-3cf04b9f278f" playOrder="30">
+      <navLabel>
+        <text>Page 30</text>
+      </navLabel>
+      <content src="page_30.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="b44b230c-dee5-4ce2-b4f1-a17c7b847216" playOrder="31">
+      <navLabel>
+        <text>Page 31</text>
+      </navLabel>
+      <content src="page_31.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="ec0b9dbe-aba7-4e29-ba31-4745bb3ba0e8" playOrder="32">
+      <navLabel>
+        <text>Page 32</text>
+      </navLabel>
+      <content src="page_32.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="142a1152-a92a-4457-9587-e6b52a4bd674" playOrder="33">
+      <navLabel>
+        <text>Page 33</text>
+      </navLabel>
+      <content src="page_33.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="d9a080f3-2689-4c5a-ae61-be06f4a7a0bf" playOrder="34">
+      <navLabel>
+        <text>Page 34</text>
+      </navLabel>
+      <content src="page_34.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="7a74669e-76f9-4d7c-9f27-b0b6038344a5" playOrder="35">
+      <navLabel>
+        <text>Page 35</text>
+      </navLabel>
+      <content src="page_35.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="2b194843-8ed7-4b6b-a769-533ad5c435ec" playOrder="36">
+      <navLabel>
+        <text>Page 36</text>
+      </navLabel>
+      <content src="page_36.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="5edf8b1e-f1e2-4cc6-87b0-d4c622b1705c" playOrder="37">
+      <navLabel>
+        <text>Page 37</text>
+      </navLabel>
+      <content src="page_37.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="690ce73b-3d74-4c7c-8c53-a75039975e4a" playOrder="38">
+      <navLabel>
+        <text>Page 38</text>
+      </navLabel>
+      <content src="page_38.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="3a90c2e8-8312-49ea-b6b4-d6034dea223e" playOrder="39">
+      <navLabel>
+        <text>Page 39</text>
+      </navLabel>
+      <content src="page_39.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="901aceca-688f-474f-9059-c63ad07f2438" playOrder="40">
+      <navLabel>
+        <text>Page 40</text>
+      </navLabel>
+      <content src="page_40.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="e294ebd4-cfa0-45de-bed2-2c174131a6a5" playOrder="41">
+      <navLabel>
+        <text>Page 41</text>
+      </navLabel>
+      <content src="page_41.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="6255bb9b-aeb9-4894-8d5f-e50fa95e2d34" playOrder="42">
+      <navLabel>
+        <text>Page 42</text>
+      </navLabel>
+      <content src="page_42.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="4b7ca0b6-a86e-45ed-bec6-a3f86ddedc70" playOrder="43">
+      <navLabel>
+        <text>Page 43</text>
+      </navLabel>
+      <content src="page_43.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="44d95118-63eb-46d1-ad1c-0e2b96f5242a" playOrder="44">
+      <navLabel>
+        <text>Page 44</text>
+      </navLabel>
+      <content src="page_44.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="8f2dd485-68bb-4580-87ba-4c8bdbf16747" playOrder="45">
+      <navLabel>
+        <text>Page 45</text>
+      </navLabel>
+      <content src="page_45.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="da4047bb-2eb5-486c-b41c-dfc6d2deeb3f" playOrder="46">
+      <navLabel>
+        <text>Page 46</text>
+      </navLabel>
+      <content src="page_46.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="82185bc2-7465-4453-bb6d-9f05a7e6e85f" playOrder="47">
+      <navLabel>
+        <text>Page 47</text>
+      </navLabel>
+      <content src="page_47.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="4bdd8064-af98-42c8-a173-ac01504b8d30" playOrder="48">
+      <navLabel>
+        <text>Page 48</text>
+      </navLabel>
+      <content src="page_48.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="5ed92fa0-0842-4fd9-bd00-15d831a4ed4d" playOrder="49">
+      <navLabel>
+        <text>Page 49</text>
+      </navLabel>
+      <content src="page_49.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="63afc35e-8613-401e-bec1-ff06ea62fdce" playOrder="50">
+      <navLabel>
+        <text>Page 50</text>
+      </navLabel>
+      <content src="page_50.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="4b488013-04b2-4fb9-a0b3-355eed68a491" playOrder="51">
+      <navLabel>
+        <text>Page 51</text>
+      </navLabel>
+      <content src="page_51.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="51decd83-de43-48af-8028-450975ce8116" playOrder="52">
+      <navLabel>
+        <text>Page 52</text>
+      </navLabel>
+      <content src="page_52.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="a5e966fc-dd86-487c-888b-b55d94f03cbf" playOrder="53">
+      <navLabel>
+        <text>Page 53</text>
+      </navLabel>
+      <content src="page_53.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="9e0597ca-4eaa-496e-b916-88e5e5c5308a" playOrder="54">
+      <navLabel>
+        <text>Page 54</text>
+      </navLabel>
+      <content src="page_54.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="599e2897-62a1-4a71-b8b3-597c01e85c09" playOrder="55">
+      <navLabel>
+        <text>Page 55</text>
+      </navLabel>
+      <content src="page_55.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="6cb9dc2c-1997-411e-8cad-cfbc6bc880e7" playOrder="56">
+      <navLabel>
+        <text>Page 56</text>
+      </navLabel>
+      <content src="page_56.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="af4cdb6b-aa67-417c-8586-aec0fe6a09f0" playOrder="57">
+      <navLabel>
+        <text>Page 57</text>
+      </navLabel>
+      <content src="page_57.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="4c3b382a-af39-4a74-b6c6-20c85e184af1" playOrder="58">
+      <navLabel>
+        <text>Page 58</text>
+      </navLabel>
+      <content src="page_58.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="c0a5dd4b-2ce1-4473-830e-9ef7a293c697" playOrder="59">
+      <navLabel>
+        <text>Page 59</text>
+      </navLabel>
+      <content src="page_59.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="a906de31-44f8-4ad2-b1ff-000e6d935a15" playOrder="60">
+      <navLabel>
+        <text>Page 60</text>
+      </navLabel>
+      <content src="page_60.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="46922197-4c5f-4bb9-b97d-eb906f7a4879" playOrder="61">
+      <navLabel>
+        <text>Page 61</text>
+      </navLabel>
+      <content src="page_61.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="28ff2d75-ca6a-44f8-b7fc-7be8fdd3c2dc" playOrder="62">
+      <navLabel>
+        <text>Page 62</text>
+      </navLabel>
+      <content src="page_62.xhtml"/>
+    </navPoint>
+    <navPoint class="chapter" id="825be7d3-acb1-4cae-b8b3-140f9bd0cea4" playOrder="63">
+      <navLabel>
+        <text>Page 63</text>
+      </navLabel>
+      <content src="page_63.xhtml"/>
+    </navPoint>
+  <!--PL V 3.4.11 sous Windows-10-10.0.15063--></navMap>
+</ncx>

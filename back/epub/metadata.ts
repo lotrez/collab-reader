@@ -1,5 +1,78 @@
-import type { DublinCoreElement, EpubManifestItem, EpubMetadata, EpubSpineItem } from "./epub.model";
+import { XMLParser } from "fast-xml-parser";
+import type { NewBook } from "../db/schema";
+import type { DublinCoreElement, EpubContainer, EpubManifestItem, EpubMetadata, EpubSpineItem, OpfPackage, ParsedChapter } from "./epub.model";
 
+// Configure XML parser
+const xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: "",
+  textNodeName: "_text",
+  parseAttributeValue: false,
+  trimValues: true,
+});
+
+/**
+ * Find OPF file path from container.xml
+ */
+export function findOpfPath(unzippedEpub: Record<string, Uint8Array>): { opfPath: string; opfBasePath: string } {
+  const containerPath = "META-INF/container.xml";
+  const containerData = unzippedEpub[containerPath];
+  
+  if (!containerData) {
+    throw new Error("Invalid EPUB: META-INF/container.xml not found");
+  }
+  
+  const containerXml = new TextDecoder().decode(containerData);
+  const container = xmlParser.parse(containerXml) as EpubContainer;
+  
+  // Extract OPF path
+  const rootfile = container.container.rootfiles.rootfile;
+  if (!rootfile) {
+    throw new Error("Invalid EPUB: No rootfile found in container.xml");
+  }
+  
+  const opfPath = rootfile["full-path"];
+  const opfBasePath = opfPath.substring(0, opfPath.lastIndexOf("/")) || "";
+  
+  console.log(`Found OPF file at: ${opfPath}`);
+  
+  return { opfPath, opfBasePath };
+}
+
+/**
+ * Parse OPF file and extract package data
+ */
+export function parseOpfFile(unzippedEpub: Record<string, Uint8Array>, opfPath: string): OpfPackage {
+  const opfData = unzippedEpub[opfPath];
+  if (!opfData) {
+    throw new Error(`OPF file not found: ${opfPath}`);
+  }
+  
+  const opfXml = new TextDecoder().decode(opfData);
+  const opf = xmlParser.parse(opfXml) as OpfPackage;
+  
+  console.log(`Parsed OPF file, version: ${opf.package.version}`);
+  
+  return opf;
+}
+
+/**
+ * Create NewBook object from EpubMetadata for database insertion
+ */
+export function createNewBookFromMetadata(metadata: EpubMetadata): NewBook {
+  return {
+    title: metadata.title,
+    author: metadata.author,
+    publisher: metadata.publisher,
+    language: metadata.language,
+    isbn: metadata.isbn,
+    description: metadata.description,
+    coverImagePath: undefined, // Will be set after uploading cover to S3
+    epubVersion: metadata.epubVersion,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
  
 /**
  * Extract and normalize metadata from OPF Dublin Core elements
@@ -13,24 +86,31 @@ export function extractMetadata(metadataNode: any, epubVersion: string): EpubMet
   };
   
   // Helper to extract all authors
-  const getAuthors = (creators: Array<string | DublinCoreElement> | undefined): string[] => {
+  const getAuthors = (creators: any): string[] => {
     if (!creators) return [];
-    return creators.map(c => getDcText(c)).filter((a): a is string => !!a);
+    
+    // Handle both array and single object cases
+    const creatorsArray = Array.isArray(creators) ? creators : [creators];
+    return creatorsArray.map((c: any) => getDcText(c)).filter((a): a is string => !!a);
   };
   
   const dcMetadata = metadataNode;
-  const title = getDcText(dcMetadata["dc:title"]?.[0]) || "Untitled";
+  const title = getDcText(dcMetadata["dc:title"]) || "Untitled";
   const authors = getAuthors(dcMetadata["dc:creator"]);
   const author = authors[0];
-  const publisher = getDcText(dcMetadata["dc:publisher"]?.[0]);
-  const language = getDcText(dcMetadata["dc:language"]?.[0]);
-  const isbn = getDcText(dcMetadata["dc:identifier"]?.[0]);
-  const description = getDcText(dcMetadata["dc:description"]?.[0]);
-  const date = getDcText(dcMetadata["dc:date"]?.[0]);
-  const rights = getDcText(dcMetadata["dc:rights"]?.[0]);
+  const publisher = getDcText(dcMetadata["dc:publisher"]);
+  const language = getDcText(dcMetadata["dc:language"]);
+  const isbn = getDcText(dcMetadata["dc:identifier"]);
+  const description = getDcText(dcMetadata["dc:description"]);
+  const date = getDcText(dcMetadata["dc:date"]);
+  const rights = getDcText(dcMetadata["dc:rights"]);
   
   // Extract subjects as array
-  const subjects = dcMetadata["dc:subject"]?.map((s: string | DublinCoreElement) => getDcText(s)).filter((s: string | undefined): s is string => !!s) || [];
+  const subjects = dcMetadata["dc:subject"] ? (
+    Array.isArray(dcMetadata["dc:subject"]) 
+      ? dcMetadata["dc:subject"].map((s: string | DublinCoreElement) => getDcText(s)).filter((s: string | undefined): s is string => !!s)
+      : [getDcText(dcMetadata["dc:subject"])]
+  ).filter((s: string | undefined): s is string => !!s) : [];
   
   // Find cover image ID from meta tags
   let coverImageId: string | undefined;
@@ -62,6 +142,8 @@ export function extractMetadata(metadataNode: any, epubVersion: string): EpubMet
  * Extract and normalize manifest items
  */
 export function extractManifest(manifestNode: any): EpubManifestItem[] {
+  // Handle both cases: manifestNode.item is array or single object
+  // Also handle case where manifestNode itself is already the manifest object
   const items = Array.isArray(manifestNode.item) ? manifestNode.item : [manifestNode.item];
   
   return items.map((item: any) => {
@@ -90,3 +172,59 @@ export function extractSpine(spineNode: any): EpubSpineItem[] {
     linear: itemref.linear !== "no",
   }));
 }
+
+/**
+ * Parse chapter HTML content and extract data
+ */
+export function parseChapterData(
+  htmlContent: string,
+  chapterNumber: number,
+  spineIndex: number,
+  href: string
+): ParsedChapter {
+  // Debug: log raw HTML
+  if (process.env.DEBUG) {
+    console.log(`    Raw HTML (first 200 chars): "${htmlContent.substring(0, 200)}"`);
+  }
+  
+  // Parse HTML using the same XML parser for consistency
+  const parsedHtml = xmlParser.parse(htmlContent) as any;
+  
+  // Debug: log parsed structure
+  if (process.env.DEBUG) {
+    console.log(`    Parsed HTML structure:`, JSON.stringify(parsedHtml, null, 2));
+  }
+  
+  // Extract title from <title> tag
+  const title = parsedHtml.html?.head?.title;
+  
+  // Debug: log extracted title
+  if (process.env.DEBUG) {
+    console.log(`    Extracted title:`, title);
+    console.log(`    Type:`, typeof title);
+  }
+  
+  // Count words in the content
+  // Better word count: only count words in the <body> section
+  const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/is);
+  const bodyContent = bodyMatch?.[1] || htmlContent;
+  
+  // Remove HTML tags and normalize whitespace
+  const cleanContent = bodyContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  
+  // Split into words and filter empty strings
+  const words = cleanContent.split(' ').filter(word => word.length > 0);
+  const wordCount = words.length;
+  
+  console.log(`  Chapter ${chapterNumber}: "${title || 'Untitled'}" (${wordCount} words)`);
+  
+  return {
+    chapterNumber,
+    spineIndex,
+    title,
+    href,
+    htmlContent: htmlContent.trim(),
+    wordCount,
+  };
+}
+  

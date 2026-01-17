@@ -9,14 +9,14 @@
 
 export interface EpubContainer {
   container: {
-    rootfiles: Array<{
-      rootfile: Array<{
-        $: {
-          'full-path': string;      // Path to the OPF file (e.g., "OEBPS/content.opf")
-          'media-type': string;      // Should be "application/oebps-package+xml"
-        };
-      }>;
-    }>;
+    rootfiles: {
+      rootfile: {
+        'full-path': string;      // Path to the OPF file (e.g., "OEBPS/content.opf")
+        'media-type': string;      // Should be "application/oebps-package+xml"
+      };
+    };
+    version?: string;
+    xmlns?: string;
   };
 }
 
@@ -73,13 +73,11 @@ export interface MetaElement {
 // ============================================================================
 
 export interface ManifestItem {
-  $: {
-    id: string;                    // Unique identifier
-    href: string;                  // Relative path to file
-    'media-type': string;          // MIME type
-    properties?: string;           // Space-separated properties (e.g., "nav", "cover-image")
-    'fallback'?: string;           // Fallback item ID
-  };
+  id: string;                    // Unique identifier
+  href: string;                  // Relative path to file
+  'media-type': string;          // MIME type
+  properties?: string;           // Space-separated properties (e.g., "nav", "cover-image")
+  'fallback'?: string;           // Fallback item ID
 }
 
 export interface Manifest {
@@ -91,19 +89,15 @@ export interface Manifest {
 // ============================================================================
 
 export interface SpineItemRef {
-  $: {
-    idref: string;                 // References manifest item ID
-    linear?: string;               // "yes" or "no" (default "yes")
-    id?: string;
-    properties?: string;
-  };
+  idref: string;                 // References manifest item ID
+  linear?: string;               // "yes" or "no" (default "yes")
+  id?: string;
+  properties?: string;
 }
 
 export interface Spine {
-  $?: {
-    toc?: string;                  // ID of NCX file in manifest
-    'page-progression-direction'?: 'ltr' | 'rtl' | 'default';
-  };
+  toc?: string;                  // ID of NCX file in manifest
+  'page-progression-direction'?: 'ltr' | 'rtl' | 'default';
   itemref: Array<SpineItemRef>;
 }
 
@@ -112,11 +106,9 @@ export interface Spine {
 // ============================================================================
 
 export interface GuideReference {
-  $: {
-    type: string;                  // e.g., "cover", "toc", "text"
-    title?: string;
-    href: string;
-  };
+  type: string;                  // e.g., "cover", "toc", "text"
+  title?: string;
+  href: string;
 }
 
 export interface Guide {
@@ -129,18 +121,15 @@ export interface Guide {
 
 export interface OpfPackage {
   package: {
-    $: {
-      version: string;             // EPUB version (e.g., "3.0", "2.0")
-      'unique-identifier': string; // References metadata identifier
-      'xmlns'?: string;
-      'xmlns:dc'?: string;
-      'xmlns:opf'?: string;
-      [key: string]: string | undefined;
-    };
-    metadata: Array<DublinCoreMetadata>;
-    manifest: Array<Manifest>;
-    spine: Array<Spine>;
-    guide?: Array<Guide>;
+    version: string;             // EPUB version (e.g., "3.0", "2.0")
+    'unique-identifier': string; // References metadata identifier
+    'xmlns'?: string;
+    'xmlns:dc'?: string;
+    'xmlns:opf'?: string;
+    metadata: DublinCoreMetadata;
+    manifest: Manifest;
+    spine: Spine;
+    guide?: Guide;
   };
 }
 
@@ -196,6 +185,18 @@ export interface ParsedEpub {
   coverItem?: EpubManifestItem;    // Cover image manifest item
   navigationItem?: EpubManifestItem; // Navigation document (EPUB 3)
   ncxItem?: EpubManifestItem;      // NCX file (EPUB 2)
+}
+
+/**
+ * Parsed chapter data
+ */
+export interface ParsedChapter {
+  chapterNumber: number;            // User-facing chapter number (1-based)
+  spineIndex: number;              // Order in EPUB spine (0-based)
+  title?: string;                  // Chapter title from <title> tag
+  href: string;                    // Original href from EPUB manifest
+  htmlContent: string;              // Cleaned HTML content
+  wordCount: number;                // Word count in chapter content
 }
 
 // ============================================================================

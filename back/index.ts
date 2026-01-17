@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
+import epub from './services/epub'
 
 const app = new Hono()
-app.get('/', (c) => c.text('Hello Bun!'))
+app.route('/epub', epub)
 
 export default app

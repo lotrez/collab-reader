@@ -42,6 +42,27 @@ services:
     networks:
       - collab-reader-network
 
+  # MinIO bucket initialization
+  minio-init:
+    image: minio/mc:latest
+    container_name: collab-reader-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+      until mc alias set minio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD; do echo 'Waiting for MinIO...' && sleep 1; done;
+      mc mb minio/${MINIO_BUCKET_NAME:-collab-reader} --ignore-existing;
+      echo '✓ Bucket ${MINIO_BUCKET_NAME:-collab-reader} ready';
+      exit 0;
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-collab-reader}
+    networks:
+      - collab-reader-network
+
 volumes:
   postgres_data:
     driver: local

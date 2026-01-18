@@ -38,8 +38,6 @@ showRoutes(app, {
 	verbose: true,
 });
 
-export default app;
-
 const port = process.env.PORT || 3000;
 
 console.log(`Starting server on port ${port}`);

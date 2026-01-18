@@ -33,5 +33,5 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENV NODE_ENV=production
 ENV PORT=3000
 
-EXPOSE 80
+EXPOSE 8078
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

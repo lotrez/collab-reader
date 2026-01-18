@@ -34,6 +34,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@tailwindcss/postcss": "^4.1.18",
     "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-query": "^5.90.19",
     "@tanstack/react-router": "^1.151.1",
     "@tanstack/router-plugin": "^1.151.5",
     "better-auth": "^1.4.14",

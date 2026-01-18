@@ -21,8 +21,7 @@ export const user = pgTable("user", {
  */
 export const books = pgTable('books', {
   id: uuid('id').defaultRandom().primaryKey(),
-  // TODO: Add userId reference once Google OAuth is implemented
-  // userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
   
   // Metadata
   title: text('title').notNull(),
@@ -194,6 +193,7 @@ export const verification = pgTable(
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  books: many(books),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -210,7 +210,11 @@ export const accountRelations = relations(account, ({ one }) => ({
   }),
 }))
 
-export const booksRelations = relations(books, ({ many }) => ({
+export const booksRelations = relations(books, ({ one, many }) => ({
+  user: one(user, {
+    fields: [books.userId],
+    references: [user.id],
+  }),
   chapters: many(chapters),
   assets: many(assets),
 }))

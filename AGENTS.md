@@ -66,6 +66,7 @@ back/
 ├── index.ts          # Main app entry
 ├── routes/           # Hono route handlers
 ├── services/         # Business logic
+├── shared/           # DTOs and types shared with frontend
 ├── db/               # Drizzle schema & migrations
 ├── epub/             # EPUB parsing utilities
 ├── s3/               # S3/MinIO client
@@ -76,6 +77,86 @@ back/
 1. **Routes are thin** - Validate input, call services, return responses
 2. **Services contain logic** - Reusable business operations
 3. **Use barrel exports** - `index.ts` for cleaner imports
+
+### Shared Types & DTOs
+
+**Purpose:** Share API contracts between backend and frontend without coupling frontend to internal database schema.
+
+**Location:** `back/shared/dtos.ts`
+
+**Pattern:**
+1. Define DTO types in `back/shared/dtos.ts` (API response types only)
+2. Import and use DTOs in backend route handlers
+3. Import and use DTOs in frontend queries/components
+
+**Example:**
+```typescript
+// back/shared/dtos.ts
+import type { Book, Chapter } from '../db/schema'
+
+export type BookResponse = {
+  id: string;
+  title: string;
+  author: string | null;
+  // Only fields exposed to API
+  coverImagePath: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type BooksListResponse = {
+  books: BookResponse[];
+};
+
+export type ChapterContentResponse = {
+  id: string;
+  bookId: string;
+  spineIndex: number;
+  htmlContent: string;
+  // ... other fields
+};
+```
+
+**Backend Usage:**
+```typescript
+// back/services/epub.ts
+import type { BookResponse, BooksListResponse } from '../shared/dtos'
+
+app.get('/', async (c) => {
+  const userBooks = await db.query.books.findMany({...});
+  const response: BooksListResponse = { books: userBooks };
+  return c.json(response);
+});
+```
+
+**Frontend Usage:**
+```typescript
+// front/queries/library.ts
+import type { BookResponse, BooksListResponse } from '../../back/shared/dtos'
+
+export const useBooks = () => {
+  return useQuery({
+    queryKey: ['books'],
+    queryFn: async () => {
+      const response = await fetch('/api/epub');
+      const data = (await response.json()) as BooksListResponse;
+      return data;
+    },
+  });
+};
+```
+
+**Benefits:**
+- Clean API contract separate from database schema
+- Frontend doesn't depend on internal implementation
+- Type safety across frontend and backend
+- Single source of truth for API shapes
+
+**When to Update DTOs:**
+- Adding/removing fields from API responses
+- Changing field types
+- Renaming endpoints
+- Modifying response structure
 
 ### Naming Conventions
 - **Files:** kebab-case (`epub-parser.ts`, `book.service.ts`)
@@ -281,6 +362,40 @@ describe('EpubParser', () => {
 4. **Create routes** - Wire up HTTP endpoints in `back/routes/`
 5. **Write tests** - Unit tests for services, integration for routes
 6. **Test manually** - Use curl, Postman, or Thunder Client
+
+### Workflow for Modifying Models After Updating Endpoints
+
+When you modify an endpoint to return different data:
+
+1. **Update the DTO in `back/shared/dtos.ts`**
+   - Add/remove fields from the response type
+   - Change field types if needed
+   - Ensure the DTO matches the new API response
+
+2. **Update the backend route/service**
+   - Modify the route handler to return the new data shape
+   - Cast the response to the DTO type
+   - Example: `const response: BookDetailResponse = { ...book, chapters: chaptersList };`
+
+3. **Update the frontend query**
+   - Import the updated DTO type
+   - Update the query function if response structure changed
+   - Update components that use the data
+   - Re-export types for backwards compatibility if needed:
+     ```typescript
+     export type Book = BookResponse;
+     export type BooksResponse = BooksListResponse;
+     ```
+
+4. **Verify type safety**
+   - Check TypeScript errors in both backend and frontend
+   - Ensure all usages are updated
+   - Run `bun test` to ensure tests still pass
+
+5. **Test the changes**
+   - Test the endpoint manually (curl, Postman)
+   - Test the frontend integration
+   - Ensure no breaking changes to existing consumers
 
 ## Technical Decisions
 

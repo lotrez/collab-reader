@@ -1,8 +1,14 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from '@tanstack/router-plugin/vite';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [tanstackRouter({
+      target: 'react',
+      routesDirectory: "./routes",
+      autoCodeSplitting: true,
+    }),react(),tailwindcss(),],
   root: './front',
   publicDir: './front/public',
   build: {

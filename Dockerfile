@@ -8,7 +8,6 @@ WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY back ./back
-COPY shared ./shared
 COPY back/index.ts .
 RUN bun build ./back/index.ts --outfile ./dist/index.js
 
@@ -17,6 +16,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
 COPY front ./front
+COPY back/shared ./back/shared
 COPY vite.config.ts tsconfig.json ./
 RUN npm run build
 
@@ -26,7 +26,7 @@ RUN apk add --no-cache nginx
 COPY --from=backend-base /app/node_modules /app/node_modules
 COPY --from=backend-builder /app/dist /app/dist
 COPY --from=frontend-builder /app/dist/front /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf.template
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 

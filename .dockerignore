@@ -13,3 +13,8 @@ docs
 back/epub/test_data
 scripts
 drizzle.config.ts
+Dockerfile
+docker-compose.yml
+.dockerignore
+docker-entrypoint.sh
+nginx.conf

@@ -1,12 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import type { BookResponse, BooksListResponse } from "../../back/shared/dtos";
-
-export const getCoverUrl = (book: BookResponse): string => {
-	if (book.coverImagePath) {
-		return `http://localhost:3000/assets/${book.coverImagePath}`;
-	}
-	return `https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop`;
-};
+import type {
+	BooksListResponse,
+	ChapterContentResponse,
+} from "../../back/shared/dtos";
 
 export const useBooks = () => {
 	return useQuery({
@@ -21,6 +17,27 @@ export const useBooks = () => {
 			}
 
 			const data = (await response.json()) as BooksListResponse;
+			return data;
+		},
+	});
+};
+
+export const useChapter = (bookId: string, chapterIndex: number) => {
+	return useQuery({
+		queryKey: ["chapter", bookId, chapterIndex],
+		queryFn: async () => {
+			const response = await fetch(
+				`/api/epub/${bookId}/chapters/${chapterIndex}`,
+				{
+					credentials: "include",
+				},
+			);
+
+			if (!response.ok) {
+				throw new Error("Failed to fetch chapter");
+			}
+
+			const data = (await response.json()) as ChapterContentResponse;
 			return data;
 		},
 	});

@@ -1,8 +1,8 @@
-import type { 
-  Book, 
-  Chapter, 
-  ReadingProgress, 
-  Annotation 
+import type {
+  Book,
+  Chapter,
+  ReadingProgress,
+  Annotation
 } from '../db/schema';
 
 export type BookResponse = {
@@ -13,7 +13,7 @@ export type BookResponse = {
   language: string | null;
   isbn: string | null;
   description: string | null;
-  coverImagePath: string | null;
+  coverImageKey: string | null;
   epubVersion: string | null;
   userId: string;
   createdAt: Date;

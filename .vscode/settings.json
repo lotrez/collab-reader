@@ -1,3 +1,4 @@
 {
-	"tailwindCSS.experimental.configFile": "front/index.css"
+	"tailwindCSS.experimental.configFile": "front/index.css",
+	"CodeGPT.apiKey": "OpenRouter"
 }

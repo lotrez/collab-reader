@@ -13,6 +13,7 @@ import { Route as AppRouteRouteImport } from './../routes/app/route'
 import { Route as IndexRouteImport } from './../routes/index'
 import { Route as LoginIndexRouteImport } from './../routes/login/index'
 import { Route as AppIndexRouteImport } from './../routes/app/index'
+import { Route as AppReaderBookIdChapterIdRouteImport } from './../routes/app/reader/$bookId/$chapterId'
 
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
@@ -34,17 +35,25 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppReaderBookIdChapterIdRoute =
+  AppReaderBookIdChapterIdRouteImport.update({
+    id: '/reader/$bookId/$chapterId',
+    path: '/reader/$bookId/$chapterId',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/app/reader/$bookId/$chapterId': typeof AppReaderBookIdChapterIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppIndexRoute
   '/login': typeof LoginIndexRoute
+  '/app/reader/$bookId/$chapterId': typeof AppReaderBookIdChapterIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -52,13 +61,25 @@ export interface FileRoutesById {
   '/app': typeof AppRouteRouteWithChildren
   '/app/': typeof AppIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/app/reader/$bookId/$chapterId': typeof AppReaderBookIdChapterIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/app/' | '/login/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/'
+    | '/login/'
+    | '/app/reader/$bookId/$chapterId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/login'
-  id: '__root__' | '/' | '/app' | '/app/' | '/login/'
+  to: '/' | '/app' | '/login' | '/app/reader/$bookId/$chapterId'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/'
+    | '/login/'
+    | '/app/reader/$bookId/$chapterId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,15 +118,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/reader/$bookId/$chapterId': {
+      id: '/app/reader/$bookId/$chapterId'
+      path: '/reader/$bookId/$chapterId'
+      fullPath: '/app/reader/$bookId/$chapterId'
+      preLoaderRoute: typeof AppReaderBookIdChapterIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
 interface AppRouteRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
+  AppReaderBookIdChapterIdRoute: typeof AppReaderBookIdChapterIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppIndexRoute: AppIndexRoute,
+  AppReaderBookIdChapterIdRoute: AppReaderBookIdChapterIdRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

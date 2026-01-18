@@ -5,12 +5,11 @@ import { assets, books, chapters, db } from "../db";
 import { parseEpub } from "../epub/parser";
 import { minio } from "../s3/s3";
 import type {
-  BookDetailResponse,
-  BookResponse,
-  BooksListResponse,
-  ChapterContentResponse,
-  ChapterListResponse,
-  UploadBookResponse,
+	BookDetailResponse,
+	BooksListResponse,
+	ChapterContentResponse,
+	ChapterListResponse,
+	UploadBookResponse,
 } from "../shared/dtos";
 
 const app = new Hono<AppContext>();
@@ -109,6 +108,7 @@ app.put("/", async (c) => {
 		.insert(books)
 		.values({
 			...parsedEpub.newBook,
+			coverImageKey: parsedEpub.coverImageKey,
 			userId: user.id,
 		})
 		.returning()
@@ -149,6 +149,29 @@ app.put("/", async (c) => {
 	};
 
 	return c.json(response);
+});
+
+app.get("/:bookId/cover", async (c) => {
+	const bookId = c.req.param("bookId");
+
+	const book = await db.query.books.findFirst({
+		where: eq(books.id, bookId),
+	});
+
+	if (!book) {
+		return c.json({ error: "Book not found" }, 404);
+	}
+
+	if (!book.coverImageKey) {
+		return c.json({ error: "Cover image not found" }, 404);
+	}
+
+	const coverFile = await minio.file(book.coverImageKey);
+	const coverBuffer = await coverFile.arrayBuffer();
+
+	return c.body(coverBuffer, 200, {
+		"Content-Type": "image/jpeg",
+	});
 });
 
 export default app;

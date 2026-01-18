@@ -14,7 +14,8 @@
     "test:s3": "bun run scripts/test-s3-upload.ts",
     "test:epub": "bun run scripts/test-epub-unzip.ts",
     "test:parser": "bun run scripts/test-epub-parser.ts",
-    "test": "bun test back/tests"
+    "test": "bun test back/tests",
+    "build": "vite build"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",

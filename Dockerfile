@@ -9,18 +9,18 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY back ./back
 COPY back/index.ts .
-RUN bun build ./back/index.ts --outfile ./dist/index.js
+RUN bun build ./back/index.ts --outfile ./dist/index.js --target bun
 
-FROM node:20-alpine AS frontend-builder
+FROM oven/bun:1 AS frontend-builder
 WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm install
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 COPY front ./front
 COPY back/shared ./back/shared
 COPY vite.config.ts tsconfig.json ./
-RUN npm run build
+RUN bun run build
 
-FROM node:20-alpine AS final
+FROM oven/bun:1-alpine AS final
 WORKDIR /app
 RUN apk add --no-cache nginx
 COPY --from=backend-base /app/node_modules /app/node_modules

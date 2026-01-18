@@ -2,7 +2,7 @@
 
 # Start backend
 echo "Starting backend server on port ${PORT:-3000}"
-node /app/dist/index.js &
+bun run /app/dist/index.js &
 
 # Start nginx
 echo "Starting nginx on port 80"

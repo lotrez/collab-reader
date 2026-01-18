@@ -37,6 +37,7 @@ function RouteComponent() {
 					<h1 className="text-3xl font-heading">{data.title}</h1>
 					<div
 						className="prose prose-sm md:prose-base max-w-none"
+						// biome-ignore lint/security/noDangerouslySetInnerHtml: c'est comme ça que ça marche bg
 						dangerouslySetInnerHTML={{ __html: data.htmlContent }}
 					/>
 				</div>

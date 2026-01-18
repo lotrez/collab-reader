@@ -39,3 +39,12 @@ showRoutes(app, {
 });
 
 export default app;
+
+const port = process.env.PORT || 3000;
+
+console.log(`Starting server on port ${port}`);
+Bun.serve({
+	fetch: app.fetch,
+	port,
+});
+console.log(`Server running on http://localhost:${port}`);
